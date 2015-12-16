@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="JobMapper">
+
+	<select id="getList" parameterType="java.util.Map" resultType="java.util.HashMap">
+		SELECT * FROM schedule_job
+	</select>
+	<select id="getObject" parameterType="java.util.Map" resultType="java.util.HashMap">
+		SELECT * FROM schedule_job
+		 where schedule_job_id=#{schedule_job_id}
+	</select>
+	
+	 <delete id="deleteObject" parameterType="java.util.HashMap" flushCache="false">
+	    <![CDATA[
+	        DELETE FROM schedule_job WHERE schedule_job_id=#{schedule_job_id}
+	    ]]>
+     </delete>
+     
+      <insert id="insertObject" parameterType="java.util.Map">
+        INSERT INTO schedule_job(
+			job_name,
+			job_group,
+			job_trigger,
+			cron_expression,
+			description,
+			status  )
+		VALUES (
+		    #{job_name},
+		    #{job_group},
+		    <if test="@Ognl@isNotEmpty(job_trigger)">
+				#{job_trigger,jdbcType=VARCHAR},
+			</if>
+			<if test="@Ognl@isEmpty(job_trigger)">
+				null,
+			</if>
+		    #{cron_expression},
+			<if test="@Ognl@isNotEmpty(desc)">
+				#{desc,jdbcType=VARCHAR},
+			</if>
+			<if test="@Ognl@isEmpty(desc)">
+				null,
+			</if>
+			#{status} )
+			<selectKey resultType="String" keyProperty="schedule_job_id"> 
+			SELECT LAST_INSERT_ID() as schedule_job_id 
+		</selectKey>
+	</insert>
+	
+	 <update id="updateObject" parameterType="java.util.Map" flushCache="false">
+        UPDATE schedule_job SET
+       		cron_expression = #{cron_expression} 
+        WHERE 
+	         schedule_job_id =#{schedule_job_id}
+	</update>
+
+</mapper>
